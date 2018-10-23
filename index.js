@@ -1,7 +1,13 @@
 const five = require('johnny-five');
 const fs = require('fs');
+
 const board = new five.Board({port: "COM5"});
-let isTrue, buttonPin = 2, thermPin = "A0", ledPin = 13, debug = true;
+
+let isTrue,
+	buttonPin = 2,
+	thermPin = "A0",
+	ledPin = 13,
+	debug = true;
 
 board.on("ready", function() {
   // Control LED if arduino is working
@@ -21,7 +27,7 @@ board.on("ready", function() {
   // Thermometer setup
   const therm = new five.Thermometer({
   	pin: thermPin,
-    //controller: "TMP36",
+    controller: !debug ? "ANALOG" : "TMP36",
     freq: 500,
   	toCelsius: function(raw) {
       return raw;
@@ -30,7 +36,7 @@ board.on("ready", function() {
   // Thermometer event
   therm.on("data", function(e) {
     if(debug) {
-      console.log(`Data: ${this.C}, correct: ${isTrue}, timestamp: ${+ new Date()}`);
+      console.log(`Data: ${this.C}, button: ${isTrue}, timestamp: ${+ new Date()}`);
     } else {
   	  fs.appendFileSync('data.csv', `${this.C},${isTrue},${+ new Date()}\n`);
     }
